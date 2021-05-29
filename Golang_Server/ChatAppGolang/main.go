@@ -16,6 +16,7 @@ type M map[string]interface{}
 const MESSAGE_NEW_USER = "New User"
 const MESSAGE_CHAT = "Chat"
 const MESSAGE_LEAVE = "Leave"
+const MESSAGE_USERNAME_SIMILAR = "Username Existed"
 
 var connections = make([]*WebSocketConnection, 0)
 
@@ -52,6 +53,16 @@ func main() {
 		}
 
 		username := r.URL.Query().Get("username")
+
+		for _, eachConn := range connections {
+			if username == eachConn.Username {
+				fmt.Println("The user names are similar")
+				handleUsername(currentGorillaConn, MESSAGE_USERNAME_SIMILAR, "")
+
+			}
+
+		}
+
 		currentConn := WebSocketConnection{Conn: currentGorillaConn, Username: username}
 		connections = append(connections, &currentConn)
 
@@ -59,7 +70,15 @@ func main() {
 	})
 
 	fmt.Println("Server starting at :8080")
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe("http://localhost:8080", nil)
+}
+func handleUsername(currentConn *websocket.Conn, kind, message string) {
+
+	currentConn.WriteJSON(SocketResponse{
+
+		Type:    kind,
+		Message: message,
+	})
 }
 
 func handleIO(currentConn *WebSocketConnection, connections []*WebSocketConnection) {

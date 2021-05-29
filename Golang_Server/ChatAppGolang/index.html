@@ -88,10 +88,17 @@
 
             app.container = document.querySelector('.container')
 
-            app.ws = new WebSocket("ws://localhost:8080/ws?username=" + name)
-
-            app.ws.onopen = function() {
+            app.ws = new WebSocket("ws://192.168.126.129:8080/ws?username=" + name)
+            
+            app.ws.onopen = function(event) {
+                var res = JSON.parse(event.data)
                 var message = '<b>me</b>: connected'
+
+                 if(res.Type ==='Username Existed'){
+                    messsage='This User name already registered, enter another user name'
+                }
+
+               
                 app.print(message)
             }
 
@@ -103,9 +110,12 @@
                     message = 'User <b>' + res.From + '</b>: connected'
                 } else if (res.Type === 'Leave') {
                     message = 'User <b>' + res.From + '</b>: disconnected'
-                } else {
-                    message = '<b>' + res.From + '</b>: ' + res.Message 
                 }
+                else {
+                    message = '<b>' + res.From + '</b>: ' + res.Message 
+                } 
+                  
+                
 
                 app.print(message)
             }
